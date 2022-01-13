@@ -12,6 +12,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - run: ls
+
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
@@ -25,9 +27,14 @@ jobs:
     - name: Build package
       run: python setup.py sdist
 
-    - name: Publish package to PyPI
-      # All files in dist/ are published
-      uses: pypa/gh-action-pypi-publish@release/v1
-      with:
-        user: __token__
-        password: ${{ secrets.PYPI_API_TOKEN }}
+    - name: TAR LS
+      run: |
+        ls dist | head -1 | tar -xzvf
+        ls dist/* 
+
+    # - name: Publish package to PyPI
+    #   # All files in dist/ are published
+    #   uses: pypa/gh-action-pypi-publish@release/v1
+    #   with:
+    #     user: __token__
+    #     password: ${{ secrets.PYPI_API_TOKEN }}
