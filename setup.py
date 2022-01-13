@@ -45,7 +45,7 @@ setup(
     author='Radek Poleski & Jennifer Yee',
     author_email='radek.poleski@gmail.com',
     description='package for modeling gravitational microlensing events',
-    packages=find_packages(where="source"),
+    packages=["MulensModel", "MulensModel.VBBL", "MulensModel.AdaptiveContouring"],
     package_dir={"": "source"},
     data_files=data_files,
     python_requires=">=3.6",
