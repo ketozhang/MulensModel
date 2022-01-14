@@ -4,10 +4,10 @@ from setuptools import Extension, find_packages, setup
 
 PROJECT_PATH = Path(__file__).resolve().parent
 SOURCE_PATH = PROJECT_PATH / "source"
-DATA_PATH = PROJECT_PATH / "data"
+DATA_PATH = SOURCE_PATH / "MulensModel"/ "data"
 
-file_required = PROJECT_PATH / "requirements.txt"
-with file_required.open() as file_:
+file_required = "requirements.txt"
+with open(file_required) as file_:
     install_requires = file_.read().splitlines()
 
 version = "unknown"
@@ -16,16 +16,14 @@ with Path(SOURCE_PATH / "MulensModel" / "version.py").open() as in_put:
         if line_.startswith('__version__'):
             version = line_.split()[2][1:-1]
 
+# Read all files from data/ in format adequate for data_files option of setup.
+package_data_files = [
+    str(f.relative_to(SOURCE_PATH / "MulensModel")) for f in DATA_PATH.rglob("*") if f.is_file()]
+
 source_VBBL = SOURCE_PATH / "VBBL"
 source_AC = SOURCE_PATH / "AdaptiveContouring"
 source_MM = SOURCE_PATH / "MulensModel"
 source_MMmo = source_MM / "mulensobjects"
-
-# Read all files from data/ in format adequate for data_files option of setup.
-files = [file_required.relative_to(PROJECT_PATH)]
-files += [
-    f.relative_to(PROJECT_PATH) for f in DATA_PATH.rglob("*") if f.is_file()]
-data_files = {str(f): str(f) for f in files}
 
 # C/C++ Extensions
 ext_AC = Extension('MulensModel.AdaptiveContouring',
@@ -47,7 +45,7 @@ setup(
     description='package for modeling gravitational microlensing events',
     packages=find_packages(where="source"),
     package_dir={"": "source"},
-    data_files=data_files,
+    package_data={"MulensModel": package_data_files},
     python_requires=">=3.6",
     install_requires=install_requires,
 )
