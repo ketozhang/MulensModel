@@ -5,8 +5,31 @@ on:
     types: [published]
 
 jobs:
-  publish:
+  build_binary:
+    runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        python-version:
+          - cp37-cp37m
+          - cp38-cp38
+          - cp39-cp39
+          - cp310-cp310
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Build Python wheels
+      with:
+        python-version: ${{ matrix.python-version }}
+        run: |
+          docker run --rm -v `pwd`:/app quay.io/pypa/manylinux_2_24_x86_64 /app/entrypoint.sh
+
+    - uses: actions/upload-artifact@v2
+      with:
+        path: ${{ GITHUB_WORKSPACE }}/dist/*.whl
+
+  build_source:
     runs-on: ubuntu-latest
 
     steps:
@@ -15,7 +38,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: "3.9"
+        python-version: "3.10"
 
     - name: Install dependencies
       run: |
@@ -24,6 +47,21 @@ jobs:
 
     - name: Build package
       run: python setup.py sdist
+
+    - uses: actions/upload-artifact@v2
+      with:
+        path: ${{ GITHUB_WORKSPACE }}/dist/*.whl
+
+  publish:
+    needs: [build_binary, build_source]
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: actions/download-artifact@v2
+      with:
+        path: ${{ GITHUB_WORKSPACE }}/dist/
 
     - name: Publish package to PyPI
       # All files in dist/ are published
